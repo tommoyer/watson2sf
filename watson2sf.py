@@ -53,7 +53,7 @@ def extractMinutesWorked(startTimeStr, stopTimeStr):
 def extractDate(dateString):
     dateObject = datetime.strptime(dateString, '%Y-%m-%d %H:%M:%S')
 
-    return dateObject.strftime('%Y/%m/%d')
+    return dateObject.strftime('%-m/%-d/%Y')
 
 
 def generateSeleniumScript(jsonOutput):
@@ -63,6 +63,7 @@ def generateSeleniumScript(jsonOutput):
     with open(filename, "w") as timecards:
         for line in lines:
             timecards.write(re.sub(r'^#TIMECARDS_JSON#$', jsonOutput, line))
+    print(f"New Selenium script can be found here: {filename}")
 
 
 @click.command()
@@ -84,8 +85,10 @@ def cli(name, file):
                                                minutes=minutes,
                                                date=workDate,
                                                note=row['note'])
+        jsonOutput += ','
 
+    # Remove comma after last entry
+    jsonOutput = jsonOutput.rstrip(',')
     jsonOutput += ']"'
 
-    print(jsonOutput)
     generateSeleniumScript(jsonOutput)
