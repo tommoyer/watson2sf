@@ -69,7 +69,7 @@ def generateSeleniumScript(jsonOutput, template):
 
 @click.command()
 @click.option('-n', '--name', help='Full SF username')
-@click.options('-t', '--template', help='Path to Selenium template')
+@click.option('-t', '--template', help='Path to Selenium template')
 @click.argument('file', type=click.File('r'))
 def cli(name, file):
     # Try to read configuration file
