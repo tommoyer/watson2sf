@@ -4,7 +4,7 @@ import csv
 import click
 import re
 import math
-import tomllib
+import tomli
 
 from string import Template
 from datetime import datetime, timedelta, date
