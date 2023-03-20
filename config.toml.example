@@ -1,0 +1,6 @@
+
+[watson2sf]
+template = '/home/tmoyer/.config/watson2sf/new-timecards.side'
+
+[user]
+name = 'Tom Moyer'

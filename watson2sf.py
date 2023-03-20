@@ -4,6 +4,7 @@ import csv
 import click
 import re
 import math
+import tomllib
 
 from string import Template
 from datetime import datetime, timedelta, date
@@ -56,10 +57,10 @@ def extractDate(dateString):
     return dateObject.strftime('%-m/%-d/%Y')
 
 
-def generateSeleniumScript(jsonOutput):
-    with open("new-timecards.side", "r") as timecards:
+def generateSeleniumScript(jsonOutput, template):
+    with open(template, "r") as timecards:
         lines = timecards.readlines()
-        filename = f"timecards-{date.today().strftime('%Y-%m-%d')}.side"
+        filename = f"~/timecards-{date.today().strftime('%Y-%m-%d')}.side"
     with open(filename, "w") as timecards:
         for line in lines:
             timecards.write(re.sub(r'^#TIMECARDS_JSON#$', jsonOutput, line))
@@ -68,10 +69,33 @@ def generateSeleniumScript(jsonOutput):
 
 @click.command()
 @click.option('-n', '--name', help='Full SF username')
+@click.options('-t', '--template', help='Path to Selenium template')
 @click.argument('file', type=click.File('r'))
 def cli(name, file):
-    if not name:
+    # Try to read configuration file
+    config = None
+    try:
+        with open('~/.config/watson2sf/config.toml', 'r') as inputFile:
+            config = tomllib.load(inputFile)
+    except IOError as e:
+        print('Configuration file not found, using sane defaults')
+
+    # Default to command line first    
+    if not name and config:
+        # Try for the config file
+        name = config['user']['name']
+    else:
+        # Prompt the user
         name = input("Enter SalesForce display name: ")
+
+    # Default to command line
+    if not template and config:
+        # Try for the config file
+        template = config['watson2sf']['template']
+    else:
+        # Prompt the user
+        template = input("Full path to template: ")
+
 
     jsonOutput = '"['
 
@@ -91,4 +115,4 @@ def cli(name, file):
     jsonOutput = jsonOutput.rstrip(',')
     jsonOutput += ']"'
 
-    generateSeleniumScript(jsonOutput)
+    generateSeleniumScript(jsonOutput, template)
