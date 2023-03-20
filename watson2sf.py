@@ -5,6 +5,7 @@ import click
 import re
 import math
 import tomli
+import os
 
 from string import Template
 from datetime import datetime, timedelta, date
@@ -60,7 +61,7 @@ def extractDate(dateString):
 def generateSeleniumScript(jsonOutput, template):
     with open(template, "r") as timecards:
         lines = timecards.readlines()
-        filename = f"~/timecards-{date.today().strftime('%Y-%m-%d')}.side"
+        filename = f"{os.environ.get('HOME')}/timecards-{date.today().strftime('%Y-%m-%d')}.side"
     with open(filename, "w") as timecards:
         for line in lines:
             timecards.write(re.sub(r'^#TIMECARDS_JSON#$', jsonOutput, line))
@@ -75,8 +76,8 @@ def cli(name, template, file):
     # Try to read configuration file
     config = None
     try:
-        with open('~/.config/watson2sf/config.toml', 'r') as inputFile:
-            config = tomllib.load(inputFile)
+        with open(f'{os.environ.get("HOME")}/.config/watson2sf/config.toml', 'rb') as inputFile:
+            config = tomli.load(inputFile)
     except IOError as e:
         print('Configuration file not found, using sane defaults')
 
