@@ -6,6 +6,7 @@ setup(
     py_modules=['watson2sf'],
     install_requires=[
         'Click',
+        'tomli',
     ],
     entry_points={
         'console_scripts': [
