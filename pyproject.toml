@@ -1,0 +1,29 @@
+[build-system]
+build-backend = "flit_core.buildapi"
+requires = ["flit_core >=3.8.0,<4"]
+
+[project]
+name = "watson2sf"
+version = "0.1.0"
+authors = [
+    {name = "Tom Moyer", email = "tom.moyer@canonical.com"},
+]
+description = "Convert Watson's CSV output to Selenium IDE script from mfo"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: MIT License",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+]
+dependencies = [
+    "Click",
+    "tomli",
+]
+
+[project.scripts]
+watson2sf = "watson2sf:cli"
