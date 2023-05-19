@@ -7,8 +7,10 @@ import math
 import tomli
 import os
 
+from watson2sf import configFiles
 from string import Template
 from datetime import datetime, timedelta, date
+from pathlib import Path
 
 
 entryTemplate = Template(('[\\"$name\\",\\"$caseNumber\\",\\"$minutes\\",'
@@ -68,11 +70,28 @@ def generateSeleniumScript(jsonOutput, template):
     print(f"New Selenium script can be found here: {filename}")
 
 
+def firstRun():
+    configDir = Path("~/.config/watson2sf").expanduser()
+    configFile = Path("~/.config/watson2sf/config.toml").expanduser()
+    templateFile = Path("~/.config/watson2sf/")
+
+    if not configDir.exists():
+        print(f"Creating directory {configDir}")
+        Path.mkdir()
+        with configFile.open('w'):
+            f.write(configFiles.configFileContents)
+        with templateFile.open('w'):
+            f.write(configFiles.templateFileContents)
+
+
 @click.command()
 @click.option('-n', '--name', help='Full SF username')
 @click.option('-t', '--template', help='Path to Selenium template')
 @click.argument('file', type=click.File('r'))
 def cli(name, template, file):
+    # Check if we have ever run before, and if not, setup the initial config files
+    firstRun()
+
     # Try to read configuration file
     config = None
     try:
