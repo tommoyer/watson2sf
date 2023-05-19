@@ -27,3 +27,6 @@ dependencies = [
 
 [project.scripts]
 watson2sf = "watson2sf:cli"
+
+[tool.flit.external-data]
+directory = "config"
