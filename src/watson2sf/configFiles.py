@@ -1,9 +1,9 @@
 configFileContents="""
 [watson2sf]
-template = '/home/tmoyer/.config/watson2sf/new-timecards.side'
+template = '$templatePath'
 
 [user]
-name = 'Tom Moyer'
+name = '$sfname'
 """
 
 templateFileContents="""

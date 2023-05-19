@@ -6,11 +6,13 @@ import re
 import math
 import tomli
 import os
+import sys
 
 from watson2sf import configFiles
 from string import Template
 from datetime import datetime, timedelta, date
 from pathlib import Path
+from string import Template
 
 
 entryTemplate = Template(('[\\"$name\\",\\"$caseNumber\\",\\"$minutes\\",'
@@ -73,14 +75,20 @@ def generateSeleniumScript(jsonOutput, template):
 def firstRun():
     configDir = Path("~/.config/watson2sf").expanduser()
     configFile = Path("~/.config/watson2sf/config.toml").expanduser()
-    templateFile = Path("~/.config/watson2sf/")
+    templateFile = Path("~/.config/watson2sf/new-timecards.side").expanduser()
 
     if not configDir.exists():
         print(f"Creating directory {configDir}")
-        Path.mkdir()
-        with configFile.open('w'):
-            f.write(configFiles.configFileContents)
-        with templateFile.open('w'):
+        configDir.mkdir()
+    if not configFile.exists():
+        print(f"Creating file {configFile}")
+        name = input("Enter SalesForce display name for config file: ")
+        configTemplate = Template(configFiles.configFileContents)
+        with configFile.open('w') as f:
+            f.write(configTemplate.substitute(sfname=name, templatePath=templateFile))
+    if not templateFile.exists():
+        print(f"Creating file {templateFile}")
+        with templateFile.open('w') as f:
             f.write(configFiles.templateFileContents)
 
 
