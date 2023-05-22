@@ -17,7 +17,7 @@ templateFileContents="""
     "name": "new-timecards",
     "commands": [{
       "id": "7952f694-a4a0-492c-9acc-32eef5087216",
-      "comment": "Open SalesForce's \"New Case Time Card\" page",
+      "comment": "Open SalesForce's \\"New Case Time Card\\" page",
       "command": "",
       "target": "",
       "targets": [],
@@ -203,7 +203,7 @@ templateFileContents="""
       "id": "a8368c93-2f8b-4e89-a183-92fb4af48bd6",
       "comment": "",
       "command": "click",
-      "target": "xpath=//lightning-base-combobox-item[span/span/lightning-base-combobox-formatted-text[@title=\"${NAME}\"]]",
+      "target": "xpath=//lightning-base-combobox-item[span/span/lightning-base-combobox-formatted-text[@title=\\"${NAME}\\"]]",
       "targets": [],
       "value": ""
     }, {
@@ -245,7 +245,7 @@ templateFileContents="""
       "id": "592b4ff5-bc08-44b2-8a71-159940696cbd",
       "comment": "",
       "command": "click",
-      "target": "xpath=//lightning-base-combobox-item[span/span/lightning-base-combobox-formatted-text[@title=\"${CASE}\"]]",
+      "target": "xpath=//lightning-base-combobox-item[span/span/lightning-base-combobox-formatted-text[@title=\\"${CASE}\\"]]",
       "targets": [],
       "value": ""
     }, {
@@ -259,7 +259,7 @@ templateFileContents="""
       "id": "5f6dd3ff-0b8b-4aea-bca9-bcc50bf3928f",
       "comment": "",
       "command": "click",
-      "target": "xpath=//lightning-button[button[@name=\"SaveAndNew\"]]",
+      "target": "xpath=//lightning-button[button[@name=\\"SaveAndNew\\"]]",
       "targets": [],
       "value": ""
     }, {
@@ -294,14 +294,14 @@ templateFileContents="""
       "id": "6572135b-6722-460a-8aef-c9e07f490893",
       "comment": "",
       "command": "waitForElementVisible",
-      "target": "xpath=//lightning-button[button[@name=\"CancelEdit\"]]",
+      "target": "xpath=//lightning-button[button[@name=\\"CancelEdit\\"]]",
       "targets": [],
       "value": "10000"
     }, {
       "id": "48de936d-9a5b-4e91-b80d-af7a62ae3711",
       "comment": "",
       "command": "click",
-      "target": "xpath=//lightning-button[button[@name=\"CancelEdit\"]]",
+      "target": "xpath=//lightning-button[button[@name=\\"CancelEdit\\"]]",
       "targets": [],
       "value": ""
     }]

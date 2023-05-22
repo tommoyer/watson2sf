@@ -62,10 +62,13 @@ def extractDate(dateString):
     return dateObject.strftime('%-m/%-d/%Y')
 
 
-def generateSeleniumScript(jsonOutput, template):
+def generateSeleniumScript(jsonOutput, template, output):
     with open(template, "r") as timecards:
         lines = timecards.readlines()
+    if not output:
         filename = f"{os.environ.get('HOME')}/timecards-{date.today().strftime('%Y-%m-%d')}.side"
+    else:
+        filename = output
     with open(filename, "w") as timecards:
         for line in lines:
             timecards.write(re.sub(r'^#TIMECARDS_JSON#$', jsonOutput, line))
@@ -95,8 +98,9 @@ def firstRun():
 @click.command()
 @click.option('-n', '--name', help='Full SF username')
 @click.option('-t', '--template', help='Path to Selenium template')
+@click.option('-o', '--output', help='File to write Selenium script to')
 @click.argument('file', type=click.File('r'))
-def cli(name, template, file):
+def cli(name, template, output, file):
     # Check if we have ever run before, and if not, setup the initial config files
     firstRun()
 
@@ -143,4 +147,4 @@ def cli(name, template, file):
     jsonOutput = jsonOutput.rstrip(',')
     jsonOutput += ']"'
 
-    generateSeleniumScript(jsonOutput, template)
+    generateSeleniumScript(jsonOutput, template, output)
