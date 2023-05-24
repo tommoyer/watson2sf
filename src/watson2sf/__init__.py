@@ -103,7 +103,6 @@ def processCSV(ctx, csvLines):
     reader = csv.DictReader(csvLines)
 
     for row in reader:
-        click.echo(f"Processing: [{row}]")
         caseNumber = extractCaseNumber(row['project'], row['tags'])
         minutes = extractMinutesWorked(row['start'], row['stop'])
         workDate = extractDate(row['start'])
@@ -164,7 +163,6 @@ def cli(ctx, name, template, output):
 @cli.command()
 @click.pass_context
 def today(ctx):
-    click.echo(f"Processing Watson log for today")
     # get CSV lines by running `watson log -d -s`
     lines = subprocess.run(['watson', 'log', '-d', '-s'], stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines()
     processCSV(ctx, lines)
