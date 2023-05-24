@@ -7,6 +7,8 @@ import math
 import tomli
 import os
 import sys
+import subprocess
+
 
 from watson2sf import configFiles
 from string import Template
@@ -95,12 +97,38 @@ def firstRun():
             f.write(configFiles.templateFileContents)
 
 
-@click.command()
+def processCSV(ctx, csvLines):
+    jsonOutput = '"['
+
+    reader = csv.DictReader(csvLines)
+
+    for row in reader:
+        click.echo(f"Processing: [{row}]")
+        caseNumber = extractCaseNumber(row['project'], row['tags'])
+        minutes = extractMinutesWorked(row['start'], row['stop'])
+        workDate = extractDate(row['start'])
+        jsonOutput += entryTemplate.substitute(name=ctx.obj['NAME'],
+                                               caseNumber=caseNumber,
+                                               minutes=minutes,
+                                               date=workDate,
+                                               note=row['note'])
+        jsonOutput += ','
+
+    # Remove comma after last entry
+    jsonOutput = jsonOutput.rstrip(',')
+    jsonOutput += ']"'
+
+    generateSeleniumScript(jsonOutput, ctx.obj['TEMPLATE'], ctx.obj['OUTPUT'])
+
+
+@click.group()
 @click.option('-n', '--name', help='Full SF username')
 @click.option('-t', '--template', help='Path to Selenium template')
 @click.option('-o', '--output', help='File to write Selenium script to')
-@click.argument('file', type=click.File('r'))
-def cli(name, template, output, file):
+@click.pass_context
+def cli(ctx, name, template, output):
+    ctx.ensure_object(dict)
+
     # Check if we have ever run before, and if not, setup the initial config files
     firstRun()
 
@@ -128,23 +156,23 @@ def cli(name, template, output, file):
         # Prompt the user
         template = input("Full path to template: ")
 
+    ctx.obj['NAME'] = name
+    ctx.obj['TEMPLATE'] = template
+    ctx.obj['OUTPUT'] = output
 
-    jsonOutput = '"['
 
-    reader = csv.DictReader(file)
-    for row in reader:
-        caseNumber = extractCaseNumber(row['project'], row['tags'])
-        minutes = extractMinutesWorked(row['start'], row['stop'])
-        workDate = extractDate(row['start'])
-        jsonOutput += entryTemplate.substitute(name=name,
-                                               caseNumber=caseNumber,
-                                               minutes=minutes,
-                                               date=workDate,
-                                               note=row['note'])
-        jsonOutput += ','
+@cli.command()
+@click.pass_context
+def today(ctx):
+    click.echo(f"Processing Watson log for today")
+    # get CSV lines by running `watson log -d -s`
+    lines = subprocess.run(['watson', 'log', '-d', '-s'], stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines()
+    processCSV(ctx, lines)
 
-    # Remove comma after last entry
-    jsonOutput = jsonOutput.rstrip(',')
-    jsonOutput += ']"'
 
-    generateSeleniumScript(jsonOutput, template, output)
+@cli.command()
+@click.argument('file', type=click.File('r'))
+@click.pass_context
+def file(ctx, file):
+    # read csv file and create array of lines, just like the output
+    processCSV(ctx, file)
