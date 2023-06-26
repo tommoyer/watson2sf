@@ -137,7 +137,7 @@ def cli(ctx, name, template, output):
     except IOError as e:
         print('Configuration file not found, using sane defaults')
 
-    # Default to command line first    
+    # Default to command line first
     if not name and config:
         # Try for the config file
         name = config['user']['name']
