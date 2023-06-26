@@ -6,7 +6,6 @@ import re
 import math
 import tomli
 import os
-import sys
 import subprocess
 
 
@@ -14,7 +13,6 @@ from watson2sf import configFiles
 from string import Template
 from datetime import datetime, timedelta, date
 from pathlib import Path
-from string import Template
 
 
 entryTemplate = Template(('[\\"$name\\",\\"$caseNumber\\",\\"$minutes\\",'
