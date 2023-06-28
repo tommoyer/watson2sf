@@ -7,6 +7,7 @@ import math
 import tomli
 import os
 import subprocess
+import pprint
 
 
 from watson2sf import configFiles
@@ -20,6 +21,7 @@ entryTemplate = Template(('[\\"$name\\",\\"$caseNumber\\",\\"$minutes\\",'
 projectCaseFormat = re.compile(r"^sf-([0-9]{8})$")
 tagCaseFormat = re.compile(r"^[0-9]{8}$")
 roundingDelta = timedelta(minutes=15)
+pp = pprint.PrettyPrinter()
 
 
 def round_dt(dt, delta):
@@ -62,13 +64,42 @@ def extractDate(dateString):
     return dateObject.strftime('%-m/%-d/%Y')
 
 
-def generateSeleniumScript(jsonOutput, template, output):
-    with open(template, "r") as timecards:
+def generate_json_output(ctx, timecards: dict) -> str:
+    json_output = '"['
+    for key, value in timecards.items():
+        case_number = key[1]
+        minutes = value[0]
+        notes = '\n'.join([*set(value[1])])
+        work_date = key[0]
+
+        json_output += entryTemplate.substitute(name=ctx.obj['NAME'],
+                                                caseNumber=case_number,
+                                                minutes=minutes,
+                                                date=work_date,
+                                                note=notes)
+        json_output += ','
+
+        if ctx.obj['DEBUG']:
+            print(f'{work_date}, {case_number}, {minutes}, {notes}')
+
+    # Remove comma after last entry
+    json_output = json_output.rstrip(',')
+    json_output += ']"'
+
+    if ctx.obj['DEBUG']:
+        print(json_output)
+
+    return json_output
+
+
+def generateSeleniumScript(ctx, timecards: dict):
+    jsonOutput = generate_json_output(ctx, timecards)
+    with open(ctx.obj['TEMPLATE'], "r") as timecards:
         lines = timecards.readlines()
-    if not output:
+    if not ctx.obj['OUTPUT']:
         filename = f"{os.environ.get('HOME')}/timecards-{date.today().strftime('%Y-%m-%d')}.side"
     else:
-        filename = output
+        filename = ctx.obj['OUTPUT']
     with open(filename, "w") as timecards:
         for line in lines:
             timecards.write(re.sub(r'^#TIMECARDS_JSON#$', jsonOutput, line))
@@ -96,34 +127,42 @@ def firstRun():
 
 
 def processCSV(ctx, csvLines):
-    jsonOutput = '"['
-
     reader = csv.DictReader(csvLines)
 
+    timecards = dict()
+    total_minutes = 0
     for row in reader:
         caseNumber = extractCaseNumber(row['project'], row['tags'])
         minutes = extractMinutesWorked(row['start'], row['stop'])
         workDate = extractDate(row['start'])
-        jsonOutput += entryTemplate.substitute(name=ctx.obj['NAME'],
-                                               caseNumber=caseNumber,
-                                               minutes=minutes,
-                                               date=workDate,
-                                               note=row['note'])
-        jsonOutput += ','
+        total_minutes += minutes
 
-    # Remove comma after last entry
-    jsonOutput = jsonOutput.rstrip(',')
-    jsonOutput += ']"'
+        if (workDate, caseNumber) not in timecards.keys():
+            timecards[(workDate, caseNumber)] = (minutes, [row['note']])
+            if ctx.obj['DEBUG']:
+                print(f'Creating timecards[({workDate}, {caseNumber})] = {timecards[(workDate, caseNumber)]}')
+        else:
+            new_note = timecards[(workDate, caseNumber)][1]
+            new_note.append(row['note'])
+            new_minutes = timecards[(workDate, caseNumber)][0] + minutes
+            timecards[(workDate, caseNumber)] = (new_minutes, new_note)
+            if ctx.obj['DEBUG']:
+                print(f'Updated timecards[({workDate}, {caseNumber})] = {timecards[(workDate, caseNumber)]}')
 
-    generateSeleniumScript(jsonOutput, ctx.obj['TEMPLATE'], ctx.obj['OUTPUT'])
+    if ctx.obj['DEBUG']:
+        pp.pprint(timecards)
+        print(f'Total minutes: {total_minutes}')
+
+    generateSeleniumScript(ctx, timecards)
 
 
 @click.group()
 @click.option('-n', '--name', help='Full SF username')
 @click.option('-t', '--template', help='Path to Selenium template')
 @click.option('-o', '--output', help='File to write Selenium script to')
+@click.option('-d', '--debug', help='Debug output', is_flag=True, show_default=True, default=False,)
 @click.pass_context
-def cli(ctx, name, template, output):
+def cli(ctx, name, template, output, debug):
     ctx.ensure_object(dict)
 
     # Check if we have ever run before, and if not, setup the initial config files
@@ -156,6 +195,7 @@ def cli(ctx, name, template, output):
     ctx.obj['NAME'] = name
     ctx.obj['TEMPLATE'] = template
     ctx.obj['OUTPUT'] = output
+    ctx.obj['DEBUG'] = debug
 
 
 @cli.command()
