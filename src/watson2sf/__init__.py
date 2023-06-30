@@ -69,7 +69,7 @@ def generate_json_output(ctx, timecards: dict) -> str:
     for key, value in timecards.items():
         case_number = key[1]
         minutes = value[0]
-        notes = '\n'.join([*set(value[1])])
+        notes = ', '.join([*set(value[1])])
         work_date = key[0]
 
         json_output += entryTemplate.substitute(name=ctx.obj['NAME'],
