@@ -14,6 +14,8 @@ from watson2sf import configFiles
 from string import Template
 from datetime import datetime, timedelta, date
 from pathlib import Path
+from importlib.metadata import version
+__version__ = version(__package__)
 
 
 entryTemplate = Template(('[\\"$name\\",\\"$caseNumber\\",\\"$minutes\\",'
@@ -156,13 +158,21 @@ def processCSV(ctx, csvLines):
     generateSeleniumScript(ctx, timecards)
 
 
-@click.group()
+@click.group(invoke_without_command=True)
 @click.option('-n', '--name', help='Full SF username')
 @click.option('-t', '--template', help='Path to Selenium template')
 @click.option('-o', '--output', help='File to write Selenium script to')
-@click.option('-d', '--debug', help='Debug output', is_flag=True, show_default=True, default=False,)
+@click.option('-d', '--debug', help='Debug output', is_flag=True, show_default=True, default=False)
+@click.option('-v', '--version', help='Print version', is_flag=True, show_default=True, default=False)
 @click.pass_context
-def cli(ctx, name, template, output, debug):
+def cli(ctx, name, template, output, debug, version):
+    if version:
+        click.echo(__version__)
+        return
+
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())        
+
     ctx.ensure_object(dict)
 
     # Check if we have ever run before, and if not, setup the initial config files

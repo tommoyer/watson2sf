@@ -1,20 +1,19 @@
-[project]
-name = "watson2sf"
-version = "0.1.0"
-authors = [
-    {name = "Tom Moyer", email = "tom.moyer@canonical.com"},
-]
-description = "Convert Watson's CSV output to Selenium IDE script from mfo"
-readme = "README.md"
-requires-python = ">=3.8"
-
+# [project]
+# name = "watson2sf"
+# version = "0.1.1"
+# authors = [
+#     {name = "Tom Moyer", email = "tom.moyer@canonical.com"},
+# ]
+# description = "Convert Watson's CSV output to Selenium IDE script from mfo"
+# readme = "README.md"
+# requires-python = ">=3.8"
 
 [tool.poetry.scripts]
 watson2sf = "watson2sf:cli"
 
 [tool.poetry]
 name = "watson2sf"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
 authors = ["Tom Moyer <tommoyer@gmail.com>"]
 readme = "README.md"
