@@ -4,6 +4,9 @@ template = '$templatePath'
 
 [user]
 name = '$sfname'
+
+[ignore]
+tags = []
 """
 
 templateFileContents="""

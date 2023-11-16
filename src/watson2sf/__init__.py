@@ -128,28 +128,39 @@ def firstRun():
             f.write(configFiles.templateFileContents)
 
 
+def ignore_frame(ctx, row):
+    # row['tags'] is either a comma-separated string of tags or a single tag
+    row_tags = [x.strip() for x in row['tags'].split(',')]
+    for tag in row_tags:
+        if tag in ctx.obj['CONFIG']['ignore']['tags']:
+            print('Found ignore tag, skipping')
+            return True
+    return False
+
+
 def processCSV(ctx, csvLines):
     reader = csv.DictReader(csvLines)
 
     timecards = dict()
     total_minutes = 0
     for row in reader:
-        caseNumber = extractCaseNumber(row['project'], row['tags'])
-        minutes = extractMinutesWorked(row['start'], row['stop'])
-        workDate = extractDate(row['start'])
-        total_minutes += minutes
+        if not ignore_frame(ctx, row):
+            caseNumber = extractCaseNumber(row['project'], row['tags'])
+            minutes = extractMinutesWorked(row['start'], row['stop'])
+            workDate = extractDate(row['start'])
+            total_minutes += minutes
 
-        if (workDate, caseNumber) not in timecards.keys():
-            timecards[(workDate, caseNumber)] = (minutes, [row['note']])
-            if ctx.obj['DEBUG']:
-                print(f'Creating timecards[({workDate}, {caseNumber})] = {timecards[(workDate, caseNumber)]}')
-        else:
-            new_note = timecards[(workDate, caseNumber)][1]
-            new_note.append(row['note'])
-            new_minutes = timecards[(workDate, caseNumber)][0] + minutes
-            timecards[(workDate, caseNumber)] = (new_minutes, new_note)
-            if ctx.obj['DEBUG']:
-                print(f'Updated timecards[({workDate}, {caseNumber})] = {timecards[(workDate, caseNumber)]}')
+            if (workDate, caseNumber) not in timecards.keys():
+                timecards[(workDate, caseNumber)] = (minutes, [row['note']])
+                if ctx.obj['DEBUG']:
+                    print(f'Creating timecards[({workDate}, {caseNumber})] = {timecards[(workDate, caseNumber)]}')
+            else:
+                new_note = timecards[(workDate, caseNumber)][1]
+                new_note.append(row['note'])
+                new_minutes = timecards[(workDate, caseNumber)][0] + minutes
+                timecards[(workDate, caseNumber)] = (new_minutes, new_note)
+                if ctx.obj['DEBUG']:
+                    print(f'Updated timecards[({workDate}, {caseNumber})] = {timecards[(workDate, caseNumber)]}')
 
     if ctx.obj['DEBUG']:
         pp.pprint(timecards)
@@ -206,6 +217,7 @@ def cli(ctx, name, template, output, debug, version):
     ctx.obj['TEMPLATE'] = template
     ctx.obj['OUTPUT'] = output
     ctx.obj['DEBUG'] = debug
+    ctx.obj['CONFIG'] = config
 
 
 @cli.command()
