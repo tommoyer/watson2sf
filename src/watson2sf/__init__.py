@@ -95,13 +95,13 @@ def generate_json_output(ctx, timecards: dict) -> str:
 
 
 def generateSeleniumScript(ctx, timecards: dict, date_list: list):
-    first_date = min(date_list)
-    last_date = max(date_list)
+    first_date = datetime.strptime(min(date_list), '%m/%d/%Y')
+    last_date = datetime.strptime(max(date_list), '%m/%d/%Y')
     jsonOutput = generate_json_output(ctx, timecards)
     with open(ctx.obj['TEMPLATE'], "r") as timecards:
         lines = timecards.readlines()
     if not ctx.obj['OUTPUT']:
-        filename = f"{os.environ.get('HOME')}/timecards-{first_date}--{last_date}.side"
+        filename = f"{os.environ.get('HOME')}/timecards-{first_date.strftime('%Y-%m-%d')}--{last_date.strftime('%Y-%m-%d')}.side"
     else:
         filename = ctx.obj['OUTPUT']
     with open(filename, "w") as timecards:
