@@ -101,7 +101,10 @@ def generateSeleniumScript(ctx, timecards: dict, date_list: list):
     with open(ctx.obj['TEMPLATE'], "r") as timecards:
         lines = timecards.readlines()
     if not ctx.obj['OUTPUT']:
-        filename = f"{os.environ.get('HOME')}/timecards-{first_date.strftime('%Y-%m-%d')}--{last_date.strftime('%Y-%m-%d')}.side"
+        if first_date != last_date:
+            filename = f"{os.environ.get('HOME')}/timecards-{first_date.strftime('%Y-%m-%d')}--{last_date.strftime('%Y-%m-%d')}.side"
+        else:
+            filename = f"{os.environ.get('HOME')}/timecards-{first_date.strftime('%Y-%m-%d')}.side"
     else:
         filename = ctx.obj['OUTPUT']
     with open(filename, "w") as timecards:
