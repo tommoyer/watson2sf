@@ -3,7 +3,7 @@ watson2sf = "watson2sf:cli"
 
 [tool.poetry]
 name = "watson2sf"
-version = "0.1.2"
+version = "0.1.3"
 description = ""
 authors = ["Tom Moyer <tommoyer@gmail.com>"]
 readme = "README.md"

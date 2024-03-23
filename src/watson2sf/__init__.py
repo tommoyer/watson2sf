@@ -241,3 +241,12 @@ def today(ctx):
 def file(ctx, file):
     # read csv file and create array of lines, just like the output
     processCSV(ctx, file)
+
+
+@cli.command()
+@click.argument('start')
+@click.argument('end')
+@click.pass_context
+def range(ctx, start, end):
+    lines = subprocess.run(['watson', 'log', '--from', start, '--to', end, '-s'], stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines()
+    processCSV(ctx, lines)
