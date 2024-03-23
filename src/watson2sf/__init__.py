@@ -250,3 +250,11 @@ def file(ctx, file):
 def range(ctx, start, end):
     lines = subprocess.run(['watson', 'log', '--from', start, '--to', end, '-s'], stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines()
     processCSV(ctx, lines)
+
+
+@cli.command()
+@click.argument('day')
+@click.pass_context
+def day(ctx, day):
+    lines = subprocess.run(['watson', 'log', '--from', day, '--to', day, '-s'], stdout=subprocess.PIPE).stdout.decode('utf-8').splitlines()
+    processCSV(ctx, lines)
