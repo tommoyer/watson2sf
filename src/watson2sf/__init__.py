@@ -94,17 +94,13 @@ def generate_json_output(ctx, timecards: dict) -> str:
     return json_output
 
 
-def generateSeleniumScript(ctx, timecards: dict, date_list: list):
-    first_date = datetime.strptime(min(date_list), '%m/%d/%Y')
-    last_date = datetime.strptime(max(date_list), '%m/%d/%Y')
+def generateSeleniumScript(ctx, timecards: dict):
+
     jsonOutput = generate_json_output(ctx, timecards)
     with open(ctx.obj['TEMPLATE'], "r") as timecards:
         lines = timecards.readlines()
     if not ctx.obj['OUTPUT']:
-        if first_date != last_date:
-            filename = f"{os.environ.get('HOME')}/timecards-{first_date.strftime('%Y-%m-%d')}--{last_date.strftime('%Y-%m-%d')}.side"
-        else:
-            filename = f"{os.environ.get('HOME')}/timecards-{first_date.strftime('%Y-%m-%d')}.side"
+        filename = f"{os.environ.get('HOME')}/timecards.side"
     else:
         filename = ctx.obj['OUTPUT']
     with open(filename, "w") as timecards:
@@ -148,13 +144,11 @@ def processCSV(ctx, csvLines):
 
     timecards = dict()
     total_minutes = 0
-    date_list = list()
     for row in reader:
         if not ignore_frame(ctx, row):
             caseNumber = extractCaseNumber(row['project'], row['tags'])
             minutes = extractMinutesWorked(row['start'], row['stop'])
             workDate = extractDate(row['start'])
-            date_list.append(workDate)
             total_minutes += minutes
 
             if (workDate, caseNumber) not in timecards.keys():
@@ -173,7 +167,7 @@ def processCSV(ctx, csvLines):
         pp.pprint(timecards)
         print(f'Total minutes: {total_minutes}')
 
-    generateSeleniumScript(ctx, timecards, date_list)
+    generateSeleniumScript(ctx, timecards)
 
 
 @click.group(invoke_without_command=True)
